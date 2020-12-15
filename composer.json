@@ -1,0 +1,34 @@
+{
+    "name": "zarinpal/zarinpal",
+    "description": "transaction request system for zarinpal",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "hooman naghiee",
+            "email": "hooman@zarinpal.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "../../vendo": "^7.0.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "6.3.*",
+        "satooshi/php-coveralls": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zarinpal\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zarinpal\\Laravel\\ZarinpalServiceProvider"
+            ],
+            "aliases": {
+                "Zarinpal": "Zarinpal\\Laravel\\Facade\\Zarinpal"
+            }
+        }
+    }
+}
