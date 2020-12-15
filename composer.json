@@ -1,11 +1,11 @@
 {
-    "name": "zarinpal/zarinpal",
+    "name": "hans-thomas/zarinpal",
     "description": "transaction request system for zarinpal",
     "license": "GPL-2.0-only",
     "authors": [
         {
-            "name": "hooman naghiee",
-            "email": "hooman@zarinpal.com"
+            "name": "mohammad mortazavi",
+            "email": "s.mohammad@live.com"
         }
     ],
     "minimum-stability": "stable",
