@@ -16,11 +16,19 @@
          * @return array
          */
         public function request( $inputs ) {
-            $result = $this->restCall( 'request.json', $inputs );
-            if ( isset($result[ 'data' ]['code']) and $result[ 'data' ]['code'] == 100 ) {
-                return [ 'authority' => $result['data'][ 'authority' ] ];
+            $result = $this->restCall( env( 'sandbox', false ) ? 'PaymentRequest.json' : 'request.json', $inputs );
+
+            if ( env( 'sandbox', false ) ) {
+                if ( isset( $result[ 'Status' ] ) and isset( $result[ 'Authority' ] ) ) {
+                    return [ 'authority' => $result[ 'Authority' ] ];
+                } else {
+                    return 'Error! check result varable for error details';
+                }
+            }
+            if ( isset( $result[ 'data' ][ 'code' ] ) and $result[ 'data' ][ 'code' ] == 100 ) {
+                return [ 'authority' => $result[ 'data' ][ 'authority' ] ];
             } else {
-                return [ 'error' => $result[ 'errors' ]['code'].' : '.$result[ 'errors' ]['message'] ];
+                return [ 'error' => $result[ 'errors' ][ 'code' ] . ' : ' . $result[ 'errors' ][ 'message' ] ];
             }
         }
 
@@ -32,23 +40,33 @@
          * @return array
          */
         public function verify( $inputs ) {
-            $result = $this->restCall( 'verify.json', $inputs );
+            $result = $this->restCall( env( 'sandbox', false ) ? 'PaymentVerification.json' : 'verify.json', $inputs );
+            // sandbox support
+            if ( env( 'sandbox', false ) ) {
+                if ( isset( $result[ 'Status' ] ) ) {
+                    return [
+                        'status' => 'success',
+                        'ref_id' => $result['RefID'],
+                    ];
+                }
+            }
 
-            if ( $result['data']['code'] == 100 ) {
+
+            if ( $result[ 'data' ][ 'code' ] == 100 ) {
                 return [
                     'status' => 'success',
-                    'ref_id'  => $result['data']['ref_id'],
+                    'ref_id' => $result[ 'data' ][ 'ref_id' ],
                 ];
-            } elseif ( $result['data']['code'] == 101 ) {
+            } elseif ( $result[ 'data' ][ 'code' ] == 101 ) {
                 return [
                     'status' => 'verified_before',
-                    'ref_id'  => $result['data']['ref_id'],
+                    'ref_id' => $result[ 'data' ][ 'ref_id' ],
                 ];
             } else {
                 return [
-                    'status'    => 'error',
-                    'error'     => ! empty( $result['data']['code'] ) ? $result['data']['code'] : null,
-                    'error_info' => ! empty( $result['errors']['code'] ) ? $result['errors']['code'] : null,
+                    'status'     => 'error',
+                    'error'      => ! empty( $result[ 'data' ][ 'code' ] ) ? $result[ 'data' ][ 'code' ] : null,
+                    'error_info' => ! empty( $result[ 'errors' ][ 'code' ] ) ? $result[ 'errors' ][ 'code' ] : null,
                 ];
             }
         }
@@ -62,11 +80,14 @@
          */
         public function refreshAuthority( $inputs ) {
             $result = $this->restCall( 'request.json', $inputs );
-            
-            if ( isset($result[ 'data' ]['code']) and $result[ 'data' ]['code'] == 100 ) {
+
+            if ( isset( $result[ 'data' ][ 'code' ] ) and $result[ 'data' ][ 'code' ] == 100 ) {
                 return [ 'status' => 'success', 'refreshed' => true ];
             } else {
-                return [ 'status' => 'error', 'error' => $result[ 'errors' ]['code'].' : '.$result[ 'errors' ]['message'] ];
+                return [
+                    'status' => 'error',
+                    'error'  => $result[ 'errors' ][ 'code' ] . ' : ' . $result[ 'errors' ][ 'message' ]
+                ];
             }
         }
 

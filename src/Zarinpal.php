@@ -45,6 +45,17 @@
             if ( ! is_null( $Mobile ) ) {
                 $inputs[ 'metadata' ][ 'mobile' ] = $Mobile;
             }
+
+            // convert keys to old version for sandbox capability
+            if ( env( 'sandbox', false ) ) {
+                $inputs = [
+                    'MerchantID'  => $this->merchantID,
+                    'CallbackURL' => $callbackURL,
+                    'Amount'       => $Amount,
+                    'Description'  => $Description,
+                ];
+            }
+
             $results = $this->driver->request( $inputs );
 
             if ( empty( $results[ 'authority' ] ) ) {
@@ -77,6 +88,15 @@
                 'amount'     => $amount,
             ];
 
+            // convert keys to old version for sandbox capability
+            if ( env( 'sandbox', false ) ) {
+                $inputs = [
+                    'MerchantID'  => $this->merchantID,
+                    'Authority'  => $authority,
+                    'Amount'     => $amount,
+                ];
+            }
+           
             return $this->driver->verify( $inputs );
         }
 
