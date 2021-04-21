@@ -5,20 +5,18 @@
     use Zarinpal\Drivers\DriverInterface;
     use Zarinpal\Drivers\RestDriver;
 
-    class Zarinpal
-    {
-        private $redirectUrl = 'https://www.zarinpal.com/pg/StartPay/%u';
+    class Zarinpal {
+        private $redirectUrl = 'https://www.zarinpal.com/pg/StartPay/$authority$';
         private $merchantID;
         private $driver;
-        private $Authority;
+        private $authority;
 
-        public function __construct($merchantID, DriverInterface $driver = null)
-        {
-            if (is_null($driver)) {
+        public function __construct( $merchantID, DriverInterface $driver = null ) {
+            if ( is_null( $driver ) ) {
                 $driver = new RestDriver();
             }
             $this->merchantID = $merchantID;
-            $this->driver = $driver;
+            $this->driver     = $driver;
         }
 
         /**
@@ -34,31 +32,25 @@
          *
          * @return array|@redirect
          */
-        public function request($callbackURL, $Amount, $Description, $Email = null, $Mobile = null, $additionalData = null)
-        {
+        public function request( $callbackURL, $Amount, $Description, $Email = null, $Mobile = null ) {
             $inputs = [
-                'MerchantID'  => $this->merchantID,
-                'CallbackURL' => $callbackURL,
-                'Amount'      => $Amount,
-                'Description' => $Description,
+                'merchant_id'  => $this->merchantID,
+                'callback_url' => $callbackURL,
+                'amount'       => $Amount,
+                'description'  => $Description,
             ];
-            if (!is_null($Email)) {
-                $inputs['Email'] = $Email;
+            if ( ! is_null( $Email ) ) {
+                $inputs[ 'metadata' ][ 'email' ] = $Email;
             }
-            if (!is_null($Mobile)) {
-                $inputs['Mobile'] = $Mobile;
+            if ( ! is_null( $Mobile ) ) {
+                $inputs[ 'metadata' ][ 'mobile' ] = $Mobile;
             }
-            if (!is_null($additionalData)) {
-                $inputs['AdditionalData'] = $additionalData;
-                $results = $this->driver->requestWithExtra($inputs);
-            } else {
-                $results = $this->driver->request($inputs);
-            }
+            $results = $this->driver->request( $inputs );
 
-            if (empty($results['Authority'])) {
-                $results['Authority'] = null;
+            if ( empty( $results[ 'authority' ] ) ) {
+                $results[ 'authority' ] = null;
             }
-            $this->Authority = $results['Authority'];
+            $this->authority = $results[ 'authority' ];
 
             return $results;
         }
@@ -72,59 +64,53 @@
          *
          * @return array
          */
-        public function verify($amount, $authority)
-        {
+        public function verify( $amount, $authority ) {
             // backward compatibility
-            if (count(func_get_args()) == 3) {
-                $amount = func_get_arg(1);
-                $authority = func_get_arg(2);
+            if ( count( func_get_args() ) == 3 ) {
+                $amount    = func_get_arg( 1 );
+                $authority = func_get_arg( 2 );
             }
 
             $inputs = [
-                'MerchantID' => $this->merchantID,
-                'Authority'  => $authority,
-                'Amount'     => $amount,
+                'merchant_id' => $this->merchantID,
+                'authority'  => $authority,
+                'amount'     => $amount,
             ];
 
-            return $this->driver->verifyWithExtra($inputs);
+            return $this->driver->verify( $inputs );
         }
 
-        public function redirect()
-        {
-            header('Location: '.sprintf($this->redirectUrl, $this->Authority));
+        public function redirect() {
+            header( 'Location: ' . str_replace( '$authority$', $this->authority, $this->redirectUrl ) );
             die;
         }
 
         /**
          * @return string
          */
-        public function redirectUrl()
-        {
-            return sprintf($this->redirectUrl, $this->Authority);
+        public function redirectUrl() {
+            return sprintf( $this->redirectUrl, $this->authority );
         }
 
         /**
          * @return DriverInterface
          */
-        public function getDriver()
-        {
+        public function getDriver() {
             return $this->driver;
         }
 
         /**
          * active sandbox mod for test env.
          */
-        public function enableSandbox()
-        {
-            $this->redirectUrl = 'https://sandbox.zarinpal.com/pg/StartPay/%u';
+        public function enableSandbox() {
+            $this->redirectUrl = 'https://sandbox.zarinpal.com/pg/StartPay/$authority$';
             $this->getDriver()->enableSandbox();
         }
 
         /**
          * active zarinGate mode.
          */
-        public function isZarinGate()
-        {
-            $this->redirectUrl = $this->redirectUrl.'/ZarinGate';
+        public function isZarinGate() {
+            $this->redirectUrl = $this->redirectUrl . '/ZarinGate';
         }
     }

@@ -20,34 +20,24 @@ then add this to `config/services.php`
     'sandbox'    => env( 'sandbox', false ),
 ],
 ```
-and you are good to go (legacy config still works)
 now you can access the zarinpal lib like this:
 ```php
 use Zarinpal\Laravel\Facade\Zarinpal;
 
 $results = Zarinpal::request(
-    "example.com/testVerify.php",          //required
-    1000,                                  //required
-    'testing',                             //required
-    'me@example.com',                      //optional
-    '09000000000',                         //optional
-    [                          //optional
-        "Wages" => [
-            "zp.1.1" => [
-                "Amount" => 120,
-                "Description" => "part 1"
-            ],
-            "zp.2.5" => [
-                "Amount" => 60,
-                "Description" => "part 2"
-            ]
-        ]
+    "example.com/call_back",               //call back url is required
+    1000,                                  //amount is required
+    'testing',                             //description is required also
+    'metadata' => [
+        'me@example.com',                  // email is optional
+        '09000000000',                     //phone number is optional
     ]
+    
 );
-// save $results['Authority'] for verifying step
-Zarinpal::redirect(); // redirect user to zarinpal
+// save $results['authority'] for verifying step
+Zarinpal::redirect(); // redirect to zarinpal
 
-// after that verify transaction by that $results['Authority']
-Zarinpal::verify('OK',1000,$results['Authority']);
+// after that verify transaction by that $results['authority']
+Zarinpal::verify(1000,$results['authority']);
 ```
 
