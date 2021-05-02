@@ -52,16 +52,17 @@
             }
 
 
-            if ( $result[ 'data' ][ 'code' ] == 100 ) {
-                return [
-                    'status' => 'success',
-                    'ref_id' => $result[ 'data' ][ 'ref_id' ],
-                ];
-            } elseif ( $result[ 'data' ][ 'code' ] == 101 ) {
-                return [
-                    'status' => 'verified_before',
-                    'ref_id' => $result[ 'data' ][ 'ref_id' ],
-                ];
+	        $code = $result[ 'data' ][ 'code' ] ?? false;
+	        if ( $code == 100 ) {
+		        return [
+			        'status' => 'success',
+			        'ref_id' => $result[ 'data' ][ 'ref_id' ],
+		        ];
+	        } elseif ( $code == 101 ) {
+		        return [
+			        'status' => 'verified_before',
+			        'ref_id' => $result[ 'data' ][ 'ref_id' ],
+		        ];
             } else {
                 return [
                     'status'     => 'error',
